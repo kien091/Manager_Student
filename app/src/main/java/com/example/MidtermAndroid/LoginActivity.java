@@ -1,27 +1,28 @@
 package com.example.MidtermAndroid;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthInvalidUserException;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
 
 public class LoginActivity extends AppCompatActivity {
     FirebaseAuth auth;
+    FirebaseFirestore database;
     TextInputEditText ed_email, ed_password;
     Button btn_login;
     TextView tv_register, tv_error;
@@ -31,6 +32,8 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        auth = FirebaseAuth.getInstance();
+
         ed_email = findViewById(R.id.ed_email);
         ed_password = findViewById(R.id.ed_password);
         btn_login = findViewById(R.id.btn_login);
@@ -38,9 +41,6 @@ public class LoginActivity extends AppCompatActivity {
         tv_register.setMovementMethod(LinkMovementMethod.getInstance());
         tv_error = findViewById(R.id.tv_error);
         layout_password = findViewById(R.id.layout_password);
-
-
-        auth = FirebaseAuth.getInstance();
 
         btn_login.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -53,47 +53,32 @@ public class LoginActivity extends AppCompatActivity {
 
         tv_register.setOnClickListener(v ->
                 startActivity(new Intent(LoginActivity.this, RegisterActivity.class)));
-
-        ed_email.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                tv_error.setText("");
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
-        ed_password.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                tv_error.setText("");
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
     }
 
     private void loginUser(String email, String password) {
+        HashMap<String, Object> historyLogin = new HashMap<>();
+        historyLogin.put("timestamp", FieldValue.serverTimestamp());
+
         auth.signInWithEmailAndPassword(email, password)
-                .addOnSuccessListener(this, authResult -> {
-                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                    finish();
-                }).addOnFailureListener(this,
-                        e -> tv_error.setText("Login Failed!"));
+                .addOnCompleteListener(this, task -> {
+                    if(task.isSuccessful()){
+                        FirebaseUser user = auth.getCurrentUser();
+                        String userId = user.getUid();
+
+                        database.collection("users").document(userId)
+                                .collection("history")
+                                .add(historyLogin);
+
+                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                    }else{
+                        Exception exception = task.getException();
+                        if(exception instanceof FirebaseAuthInvalidUserException)
+                            tv_error.setText("Email isn't exist!");
+                        else if (exception instanceof FirebaseAuthInvalidCredentialsException)
+                            tv_error.setText("Wrong password!");
+                        else
+                            tv_error.setText("Login failed!");
+                    }
+                });
     }
 }
