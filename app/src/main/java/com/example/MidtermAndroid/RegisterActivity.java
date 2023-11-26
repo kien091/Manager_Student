@@ -34,7 +34,7 @@ public class RegisterActivity extends AppCompatActivity {
     FirebaseFirestore database;
     TextInputEditText ed_name, ed_age, ed_phone, ed_email, ed_password;
     Button btn_register;
-    TextView tv_login, tv_error;
+    TextView tv_error;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,8 +49,6 @@ public class RegisterActivity extends AppCompatActivity {
         ed_email = findViewById(R.id.ed_email);
         ed_password = findViewById(R.id.ed_password);
         btn_register = findViewById(R.id.btn_register);
-        tv_login = findViewById(R.id.tv_login);
-        tv_login.setMovementMethod(LinkMovementMethod.getInstance());
         tv_error = findViewById(R.id.tv_error);
 
         btn_register.setOnClickListener(v -> {
@@ -62,9 +60,6 @@ public class RegisterActivity extends AppCompatActivity {
 
             registerUser(name, age, phone, email, password);
         });
-
-        tv_login.setOnClickListener(v ->
-                startActivity(new Intent(RegisterActivity.this, LoginActivity.class)));
     }
 
     private void registerUser(String name, int age, String phone, String email, String password) {
@@ -78,14 +73,12 @@ public class RegisterActivity extends AppCompatActivity {
 
                             HashMap<String, Object> data = new HashMap<>();
                             data.put("email", email);
+                            data.put("avatar", "");
                             data.put("name", name);
                             data.put("age", age);
                             data.put("phone", phone);
                             data.put("status", "normal");
                             data.put("role", "employee");
-
-                            HashMap<String, Object> historyLogin = new HashMap<>();
-                            historyLogin.put("timestamp", FieldValue.serverTimestamp());
 
                             database.collection("users").document(userId)
                                     .set(data)
@@ -93,9 +86,9 @@ public class RegisterActivity extends AppCompatActivity {
                                         database.collection("users")
                                                 .document(userId)
                                                 .collection("history")
-                                                .add(historyLogin);
+                                                .add(new HashMap<>());
 
-                                        startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+                                        //startActivity(new Intent(RegisterActivity.this, MainActivity.class));
                                     }).addOnFailureListener(e -> tv_error.setText("Can't add information user!"));
                         }else{
                             Exception exception = task.getException();

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="10dp">
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_weight="1">
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nguyễn Trung Kiên"
+            android:textSize="19dp"
+            android:layout_marginBottom="4dp"/>
+        <TextView
+            android:id="@+id/tv_faculty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Khoa Công nghệ thông tin"
+            android:textSize="17dp"
+            android:layout_marginTop="4dp"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/tv_studentID"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="MSSV: 52100752"
+            android:textSize="17dp"
+            android:layout_marginBottom="4dp"/>
+        <TextView
+            android:id="@+id/tv_grade"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Lớp: 21050261"
+            android:textSize="17dp"
+            android:layout_marginTop="4dp"/>
+    </LinearLayout>
+</LinearLayout>
