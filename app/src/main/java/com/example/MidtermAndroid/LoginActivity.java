@@ -32,9 +32,12 @@ public class LoginActivity extends AppCompatActivity {
     Button btn_login;
     TextView tv_error;
     TextInputLayout layout_password;
+    private static String role;
 
-    SharedPreferences sharedPreferences;
-    SharedPreferences.Editor editor;
+    public static String getRole() {
+        return role;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,9 +45,6 @@ public class LoginActivity extends AppCompatActivity {
 
         auth = FirebaseAuth.getInstance();
         database = FirebaseFirestore.getInstance();
-
-        sharedPreferences = getSharedPreferences("templateData", MODE_PRIVATE);
-        editor = sharedPreferences.edit();
 
         ed_email = findViewById(R.id.ed_email);
         ed_password = findViewById(R.id.ed_password);
@@ -76,21 +76,15 @@ public class LoginActivity extends AppCompatActivity {
                         database.collection("users").document(userId)
                                         .get().addOnSuccessListener(documentSnapshot -> {
                                             if(documentSnapshot.exists()){
-                                                String role = documentSnapshot.getString("role");
+                                                this.role = documentSnapshot.getString("role");
                                                 String status = documentSnapshot.getString("status");
-                                                if(role != null){
-                                                    editor.putString("role", role);
-                                                    editor.putString("status", status);
-                                                    editor.apply();
-                                                }
+                                                if(status.equals("normal"))
+                                                    startActivity(new Intent(LoginActivity.this, StudentActivity.class));
+                                                else
+                                                    tv_error.setText("Your account is locked!");
                                             }
                                         });
 
-                        String status = sharedPreferences.getString("status", "normal");
-                        if(status.equals("normal"))
-                            startActivity(new Intent(LoginActivity.this, StudentActivity.class));
-                        else
-                            tv_error.setText("Your account is locked!");
                     }else{
                         tv_error.setText("Login failed!");
                     }

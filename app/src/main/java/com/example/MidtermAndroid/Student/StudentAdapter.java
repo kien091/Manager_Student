@@ -1,7 +1,9 @@
 package com.example.MidtermAndroid.Student;
 
 import android.content.Context;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -16,9 +18,22 @@ import java.util.ArrayList;
 public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.ViewHolder> {
     private Context context;
     private ArrayList<Student> students;
+    private String role;
 
-    public StudentAdapter(Context context, ArrayList<Student> students) {
+    private Student student;
+
+    public StudentAdapter(Context context, ArrayList<Student> students,
+                          String role) {
         this.context = context;
+        this.students = students;
+        this.role = role;
+    }
+
+    public Student getStudent() {
+        return student;
+    }
+
+    public void setStudents(ArrayList<Student> students) {
         this.students = students;
     }
 
@@ -46,6 +61,25 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.ViewHold
 
         TextView tv_grade = holder.tv_grade;
         tv_grade.setText("Lớp: " + student.getGrade());
+
+        if(role.equals("admin") || role.equals("manager")){
+            holder.itemView.setOnCreateContextMenuListener((menu, v, menuInfo) -> {
+                MenuInflater inflater = new MenuInflater(context);
+                inflater.inflate(R.menu.student_context_menu, menu);
+
+                this.student = student;
+            });
+        } else {
+            holder.itemView.setOnCreateContextMenuListener((menu, v, menuInfo) -> {
+                MenuInflater inflater = new MenuInflater(context);
+                inflater.inflate(R.menu.student_context_menu, menu);
+
+                menu.removeItem(R.id.i_edit);
+                menu.removeItem(R.id.i_delete);
+
+                this.student = student;
+            });
+        }
     }
 
     @Override

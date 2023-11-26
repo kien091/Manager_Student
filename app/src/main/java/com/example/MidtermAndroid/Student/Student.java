@@ -1,6 +1,8 @@
 package com.example.MidtermAndroid.Student;
 
-public class Student {
+import java.io.Serializable;
+
+public class Student implements Serializable {
     private String Uid;
     private String name;
     private String dob;

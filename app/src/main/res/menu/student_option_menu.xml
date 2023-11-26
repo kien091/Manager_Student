@@ -16,7 +16,22 @@
         android:title="Profile"/>
     <item
         android:id="@+id/i_sort"
-        android:title="Sort"/>
+        android:title="Sort">
+        <menu>
+            <item
+                android:id="@+id/i_sort_name"
+                android:title="Name a-z"/>
+            <item
+                android:id="@+id/i_sort_studentID"
+                android:title="studentID"/>
+            <item
+                android:id="@+id/i_sort_faculty"
+                android:title="Faculty"/>
+            <item
+                android:id="@+id/i_sort_grade"
+                android:title="Grade"/>
+        </menu>
+    </item>
     <item
         android:id="@+id/i_import"
         android:title="Import"/>
