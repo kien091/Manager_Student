@@ -1,14 +1,11 @@
 package com.example.MidtermAndroid.Student;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -20,20 +17,32 @@ import android.widget.EditText;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.MidtermAndroid.LoginActivity;
 import com.example.MidtermAndroid.ProfileActivity;
 import com.example.MidtermAndroid.R;
 import com.example.MidtermAndroid.User.UserActivity;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class StudentActivity extends AppCompatActivity {
@@ -61,7 +70,6 @@ public class StudentActivity extends AppCompatActivity {
         rcv.addItemDecoration(dividerItemDecoration);
 
         rcv.setLayoutManager(new LinearLayoutManager(this));
-
         ed_search.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -73,17 +81,20 @@ public class StudentActivity extends AppCompatActivity {
 
             }
 
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             public void afterTextChanged(Editable s) {
                 String search = ed_search.getText().toString().toLowerCase();
-                students = (ArrayList<Student>) students.stream()
+
+                ArrayList<Student> clone = new ArrayList<>();
+
+                clone = (ArrayList<Student>) students.stream()
                         .filter(student -> student.getName().toLowerCase().contains(search)
                                 || student.getStudentID().toLowerCase().contains(search)
                                 || student.getFaculty().toLowerCase().contains(search)
                                 || student.getGrade().toLowerCase().contains(search))
                         .collect(Collectors.toList());
-
-                adapter.setStudents(students);
+                adapter.setStudents(clone);
                 adapter.notifyDataSetChanged();
             }
         });
@@ -103,6 +114,7 @@ public class StudentActivity extends AppCompatActivity {
         return true;
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
@@ -117,19 +129,48 @@ public class StudentActivity extends AppCompatActivity {
             case R.id.i_profile:
                 startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
                 break;
-            case R.id.i_sort:
-                showSortOption(item.getActionView());
+            case R.id.i_sort_name:
+                students = (ArrayList<Student>) students.stream()
+                        .sorted(Comparator.comparing(Student::getName))
+                        .collect(Collectors.toList());
+                adapter.setStudents(students);
+                runOnUiThread(() -> adapter.notifyDataSetChanged());
+                break;
+            case R.id.i_sort_studentID:
+                students = (ArrayList<Student>) students.stream()
+                        .sorted(Comparator.comparing(Student::getStudentID))
+                        .collect(Collectors.toList());
+                adapter.setStudents(students);
+                runOnUiThread(() -> adapter.notifyDataSetChanged());
+                break;
+            case R.id.i_sort_faculty:
+                students = (ArrayList<Student>) students.stream()
+                        .sorted(Comparator.comparing(Student::getFaculty))
+                        .collect(Collectors.toList());
+                adapter.setStudents(students);
+                runOnUiThread(() -> adapter.notifyDataSetChanged());
+                break;
+            case R.id.i_sort_grade:
+                students = (ArrayList<Student>) students.stream()
+                        .sorted(Comparator.comparing(Student::getGrade))
+                        .collect(Collectors.toList());
+                adapter.setStudents(students);
+                runOnUiThread(() -> adapter.notifyDataSetChanged());
                 break;
             case R.id.i_import:
                 // write import (delete all data in firestore)
                 break;
             case R.id.i_export:
-                // some thing here
+                exportToCSV(students, "students.csv");
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Success to export students", Toast.LENGTH_SHORT).show();
+                });
                 break;
         }
         return true;
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
         Intent intent = new Intent(getApplicationContext(), ModifyStudentActivity.class);
@@ -144,9 +185,9 @@ public class StudentActivity extends AppCompatActivity {
                         .document(adapter.getStudent().getUid())
                         .delete()
                         .addOnSuccessListener(unused ->
-                                Toast.makeText(getApplicationContext(), "Xóa sinh viên thành công!", Toast.LENGTH_SHORT).show())
+                                Toast.makeText(getApplicationContext(), "Success to delete student!", Toast.LENGTH_SHORT).show())
                         .addOnFailureListener(e ->
-                                Toast.makeText(getApplicationContext(), "Không thể sinh viên thành công!", Toast.LENGTH_SHORT).show());
+                                Toast.makeText(getApplicationContext(), "Cannot delete student!", Toast.LENGTH_SHORT).show());
                 break;
             case R.id.i_edit:
                 intent.putExtra("action", "edit");
@@ -157,35 +198,9 @@ public class StudentActivity extends AppCompatActivity {
         return true;
     }
 
-    private void showSortOption(View actionView) {
-        PopupMenu popupMenu = new PopupMenu(this, actionView);
-        popupMenu.getMenuInflater().inflate(R.menu.student_option_menu, popupMenu.getMenu());
-
-        popupMenu.setOnMenuItemClickListener(item -> {
-            Comparator<Student> comparator = null;
-
-            switch (item.getItemId()){
-                case R.id.i_sort_name:
-                    comparator = (o1, o2) -> o1.getName().compareTo(o2.getName());
-                    break;
-                case R.id.i_sort_studentID:
-                    comparator = (o1, o2) -> o1.getStudentID().compareTo(o2.getStudentID());
-                    break;
-                case R.id.i_sort_faculty:
-                    comparator = (o1, o2) -> o1.getFaculty().compareTo(o2.getFaculty());
-                    break;
-                case R.id.i_sort_grade:
-                    comparator = (o1, o2) -> o1.getGrade().compareTo(o2.getGrade());
-                    break;
-            }
-            Collections.sort(students, comparator);
-            runOnUiThread(() -> adapter.notifyDataSetChanged());
-
-            return true;
-        });
-    }
-
+    @SuppressLint("NotifyDataSetChanged")
     private void loadStudentFromFireStore(){
+        students.clear();
         database.collection("students").get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     for(QueryDocumentSnapshot document : queryDocumentSnapshots){
@@ -209,5 +224,36 @@ public class StudentActivity extends AppCompatActivity {
                         e -> Toast.makeText(getApplicationContext(),
                                 "Cannot load students!",
                                 Toast.LENGTH_SHORT).show());
+    }
+
+    public void exportToCSV(List<Student> students, String fileName) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},0);
+        }
+
+        String filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                .getAbsolutePath() + File.separator + fileName;
+
+        try (OutputStream outputStream = new FileOutputStream(filePath);
+             Writer fileWriter = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
+            fileWriter.append("UID,Name,DOB,Gender,Phone,StudentID,Grade,Faculty,Major\n");
+
+            for (Student student : students) {
+                fileWriter.append(student.getUid()).append(",")
+                        .append(student.getName()).append(",")
+                        .append(student.getDob()).append(",")
+                        .append(student.getGender()).append(",")
+                        .append(student.getPhone()).append(",")
+                        .append(student.getStudentID()).append(",")
+                        .append(student.getGrade()).append(",")
+                        .append(student.getFaculty()).append(",")
+                        .append(student.getMajor()).append("\n");
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
