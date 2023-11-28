@@ -90,7 +90,6 @@ public class ModifyStudentActivity extends AppCompatActivity {
                 layout_name.setError(null);
         });
         ed_dob.setOnClickListener(v -> {
-            showDatePickerDialog();
             if(layout_dob.getError() != null)
                 layout_dob.setError(null);
         });
@@ -126,6 +125,9 @@ public class ModifyStudentActivity extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.student_modify, menu);
 
+        if(action.equals("view")){
+            menu.removeItem(R.id.i_save);
+        }
         return true;
     }
 
@@ -208,22 +210,5 @@ public class ModifyStudentActivity extends AppCompatActivity {
 
         if(layout_gender.getError() != null)
             layout_gender.setError(null);
-    }
-    private void showDatePickerDialog(){
-        Calendar calendar = Calendar.getInstance();
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH);
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-
-        DatePickerDialog datePickerDialog = new DatePickerDialog(this,
-                (view, year1, month1, dayOfMonth) -> {
-                    String date = dayOfMonth + "/" + (month1+1) + "/" + year1;
-                    ed_dob.setText(date);
-                }, year, month, day);
-
-        datePickerDialog.show();
-
-        if(layout_dob.getError() != null)
-            layout_dob.setError(null);
     }
 }

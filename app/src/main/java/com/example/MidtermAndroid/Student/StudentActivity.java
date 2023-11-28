@@ -18,6 +18,7 @@ import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -28,12 +29,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.MidtermAndroid.LoginActivity;
 import com.example.MidtermAndroid.ProfileActivity;
 import com.example.MidtermAndroid.R;
+import com.example.MidtermAndroid.Student.Certificate.CertificateActivity;
 import com.example.MidtermAndroid.User.UserActivity;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -158,7 +163,17 @@ public class StudentActivity extends AppCompatActivity {
                 runOnUiThread(() -> adapter.notifyDataSetChanged());
                 break;
             case R.id.i_import:
-                // write import (delete all data in firestore)
+                AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                        .setMessage("It will be delete all current data?")
+                        .setPositiveButton("Yes", (dialog, which) -> {
+                            importFromCSV("students.csv", students);
+                            runOnUiThread(() -> {
+                                Toast.makeText(this, "Success to import students", Toast.LENGTH_SHORT).show();
+                            });
+                        }).setPositiveButton("No", (dialog, which) -> {
+                            dialog.dismiss();
+                        });
+                builder.create().show();
                 break;
             case R.id.i_export:
                 exportToCSV(students, "students.csv");
@@ -184,8 +199,11 @@ public class StudentActivity extends AppCompatActivity {
                 database.collection("students")
                         .document(adapter.getStudent().getUid())
                         .delete()
-                        .addOnSuccessListener(unused ->
-                                Toast.makeText(getApplicationContext(), "Success to delete student!", Toast.LENGTH_SHORT).show())
+                        .addOnSuccessListener(unused -> {
+                            loadStudentFromFireStore();
+                            adapter.notifyDataSetChanged();
+                            runOnUiThread(() -> Toast.makeText(getApplicationContext(),
+                                    "Success to delete student!", Toast.LENGTH_SHORT).show());})
                         .addOnFailureListener(e ->
                                 Toast.makeText(getApplicationContext(), "Cannot delete student!", Toast.LENGTH_SHORT).show());
                 break;
@@ -193,6 +211,11 @@ public class StudentActivity extends AppCompatActivity {
                 intent.putExtra("action", "edit");
                 intent.putExtra("student", adapter.getStudent());
                 startActivity(intent);
+                break;
+            case R.id.i_certificate:
+                Intent certificateIntent = new Intent(getApplicationContext(), CertificateActivity.class);
+                certificateIntent.putExtra("student", adapter.getStudent());
+                startActivity(certificateIntent);
                 break;
         }
         return true;
@@ -254,6 +277,51 @@ public class StudentActivity extends AppCompatActivity {
 
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+    public void importFromCSV(String fileName, ArrayList<Student> students){
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},1);
+        }
+
+        String filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                .getAbsolutePath() + File.separator + fileName;
+
+        File file = new File(filePath);
+        if(!file.exists()) {
+            Toast.makeText(this, fileName + " isn't exist in folder", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            students.clear();
+
+            try(BufferedReader bufferedReader = new BufferedReader(new FileReader(filePath))) {
+                String line = bufferedReader.readLine();
+
+                while ((line = bufferedReader.readLine()) != null){
+                    String[] data = line.split(",");
+                    if (data.length == 9) {
+                        String uid = data[0];
+                        String name = data[1];
+                        String dob = data[2];
+                        String gender = data[3];
+                        String phone = data[4];
+                        String studentID = data[5];
+                        String grade = data[6];
+                        String faculty = data[7];
+                        String major = data[8];
+
+                        Student student = new Student(uid, name, dob, gender, phone,
+                                studentID, grade, faculty, major);
+
+                        students.add(student);
+                    }
+                }
+                runOnUiThread(() -> adapter.notifyDataSetChanged());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }

@@ -47,7 +47,7 @@
                 android:id="@+id/ed_dob"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text"/>
+                android:inputType="date"/>
         </com.google.android.material.textfield.TextInputLayout>
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layout_gender"
@@ -81,7 +81,7 @@
             android:id="@+id/ed_phone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textPersonName"/>
+            android:inputType="phone"/>
     </com.google.android.material.textfield.TextInputLayout>
     <LinearLayout
         android:id="@+id/layout_id_grade"
