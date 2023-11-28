@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -13,6 +15,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MidtermAndroid"
         tools:targetApi="31">
+        <activity
+            android:name=".Student.Certificate.ModifyCertificateActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Student.Certificate.CertificateActivity"
+            android:exported="false" />
         <activity
             android:name=".ProfileActivity"
             android:exported="false" />
@@ -26,7 +34,7 @@
             android:name=".Student.StudentActivity"
             android:exported="false" />
         <activity
-            android:name=".RegisterActivity"
+            android:name=".User.RegisterActivity"
             android:exported="true" />
         <activity
             android:name=".LoginActivity"
