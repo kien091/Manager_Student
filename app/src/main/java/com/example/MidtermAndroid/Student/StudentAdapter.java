@@ -67,6 +67,7 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.ViewHold
                 MenuInflater inflater = new MenuInflater(context);
                 inflater.inflate(R.menu.student_context_menu, menu);
 
+                menu.removeItem(R.id.i_history);
                 this.student = student;
             });
         } else {
@@ -76,6 +77,7 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.ViewHold
 
                 menu.removeItem(R.id.i_edit);
                 menu.removeItem(R.id.i_delete);
+                menu.removeItem(R.id.i_history);
 
                 this.student = student;
             });

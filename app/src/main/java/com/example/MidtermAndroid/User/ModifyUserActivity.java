@@ -283,7 +283,7 @@ public class ModifyUserActivity extends AppCompatActivity {
                         FirebaseUser user = auth.getCurrentUser();
                         String userId = user.getUid();
 
-                        Log.e("TAG", "registerUser: " + userId);
+                        data.put("uid", userId);
                         database.collection("users")
                                 .document(userId)
                                 .set(data)

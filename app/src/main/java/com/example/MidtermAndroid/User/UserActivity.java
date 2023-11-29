@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.example.MidtermAndroid.LoginActivity;
 import com.example.MidtermAndroid.R;
 import com.example.MidtermAndroid.Student.StudentActivity;
+import com.example.MidtermAndroid.User.History.HistoryActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -115,9 +116,6 @@ public class UserActivity extends AppCompatActivity {
                 startActivity(intent);
                 break;
             case R.id.i_delete:
-                FirebaseAuth auth = FirebaseAuth.getInstance();
-                FirebaseUser user = auth.getCurrentUser();
-
                 database.collection("users")
                         .document(adapter.getUser().getUid())
                         .delete()
@@ -132,6 +130,11 @@ public class UserActivity extends AppCompatActivity {
                                         "Cannot delete user!",
                                         Toast.LENGTH_SHORT).show());
                 break;
+            case R.id.i_history:
+                intent = new Intent(this, HistoryActivity.class);
+                intent.putExtra("user", adapter.getUser());
+                startActivity(intent);
+                break;
         }
         return super.onContextItemSelected(item);
     }
@@ -142,7 +145,7 @@ public class UserActivity extends AppCompatActivity {
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
             for(QueryDocumentSnapshot document: queryDocumentSnapshots){
-                String uid = document.getId();
+                String uid = document.getString("uid");
                 String name = document.getString("name");
                 String avatar = document.getString("avatar");
                 String dob = document.getString("dob");

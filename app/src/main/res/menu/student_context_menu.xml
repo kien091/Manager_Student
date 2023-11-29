@@ -12,4 +12,7 @@
     <item
         android:id="@+id/i_certificate"
         android:title="Certificate"/>
+    <item
+        android:id="@+id/i_history"
+        android:title="History"/>
 </menu>
