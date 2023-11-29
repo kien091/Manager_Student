@@ -1,25 +1,24 @@
 package com.example.MidtermAndroid.Student;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.app.DatePickerDialog;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.MidtermAndroid.R;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class ModifyStudentActivity extends AppCompatActivity {
     FirebaseFirestore database;
@@ -54,7 +53,7 @@ public class ModifyStudentActivity extends AppCompatActivity {
         layout_faculty = findViewById(R.id.layout_faculty);
         layout_major = findViewById(R.id.layout_major);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         Intent intent = getIntent();
         if(intent.hasExtra("action")){
@@ -64,7 +63,7 @@ public class ModifyStudentActivity extends AppCompatActivity {
         if(intent.hasExtra("student")){
             student = (Student) intent.getSerializableExtra("student");
 
-            ed_name.setText(student.getName());
+            ed_name.setText(Objects.requireNonNull(student).getName());
             ed_dob.setText(student.getDob());
             ed_gender.setText(student.getGender());
             ed_phone.setText(student.getPhone());
@@ -131,17 +130,18 @@ public class ModifyStudentActivity extends AppCompatActivity {
         return true;
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         HashMap<String, Object> student = new HashMap<>();
-        student.put("name", ed_name.getText().toString());
-        student.put("dob", ed_dob.getText().toString());
-        student.put("gender", ed_gender.getText().toString());
-        student.put("phone", ed_phone.getText().toString());
-        student.put("studentID", ed_studentID.getText().toString());
-        student.put("grade", ed_grade.getText().toString());
-        student.put("faculty", ed_faculty.getText().toString());
-        student.put("major", ed_major.getText().toString());
+        student.put("name", Objects.requireNonNull(ed_name.getText()).toString());
+        student.put("dob", Objects.requireNonNull(ed_dob.getText()).toString());
+        student.put("gender", Objects.requireNonNull(ed_gender.getText()).toString());
+        student.put("phone", Objects.requireNonNull(ed_phone.getText()).toString());
+        student.put("studentID", Objects.requireNonNull(ed_studentID.getText()).toString());
+        student.put("grade", Objects.requireNonNull(ed_grade.getText()).toString());
+        student.put("faculty", Objects.requireNonNull(ed_faculty.getText()).toString());
+        student.put("major", Objects.requireNonNull(ed_major.getText()).toString());
 
         Intent intent = new Intent(getApplicationContext(), StudentActivity.class);
         switch (item.getItemId()){

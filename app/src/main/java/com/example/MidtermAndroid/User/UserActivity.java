@@ -1,30 +1,28 @@
 package com.example.MidtermAndroid.User;
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.widget.Toast;
-
 import com.example.MidtermAndroid.LoginActivity;
 import com.example.MidtermAndroid.R;
 import com.example.MidtermAndroid.Student.StudentActivity;
 import com.example.MidtermAndroid.User.History.HistoryActivity;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class UserActivity extends AppCompatActivity {
     FirebaseFirestore database;
@@ -70,6 +68,7 @@ public class UserActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         Intent intent = new Intent(this, ModifyUserActivity.class);
@@ -113,6 +112,7 @@ public class UserActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @SuppressLint({"NonConstantResourceId", "NotifyDataSetChanged"})
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
         Intent intent = new Intent(this, ModifyUserActivity.class);
@@ -151,6 +151,7 @@ public class UserActivity extends AppCompatActivity {
         return super.onContextItemSelected(item);
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private void loadUserFromFirebase() {
         users.clear();
         database.collection("users")

@@ -88,7 +88,7 @@ public class StudentActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
                 String search = ed_search.getText().toString().toLowerCase();
 
-                ArrayList<Student> clone = new ArrayList<>();
+                ArrayList<Student> clone;
 
                 clone = (ArrayList<Student>) students.stream()
                         .filter(student -> student.getName().toLowerCase().contains(search)
@@ -111,23 +111,20 @@ public class StudentActivity extends AppCompatActivity {
 
         menu.removeItem(R.id.i_student);
 
-        if(LoginActivity.getRole().equals("employee")){
-            menu.removeItem(R.id.i_add);
-            menu.removeItem(R.id.i_profile);
-            menu.removeItem(R.id.i_sort);
-            menu.removeItem(R.id.i_import);
-            menu.removeItem(R.id.i_export);
-        }
-        else if(LoginActivity.getRole().equals("manager")){
-            menu.removeItem(R.id.i_profile);
-            menu.removeItem(R.id.i_sort);
-            menu.removeItem(R.id.i_import);
-            menu.removeItem(R.id.i_export);
-        }
-        else if(LoginActivity.getRole().equals("student")){
-            menu.removeItem(R.id.i_add);
-            menu.removeItem(R.id.i_import);
-            menu.removeItem(R.id.i_export);
+        switch (LoginActivity.getRole()) {
+            case "employee":
+                menu.removeItem(R.id.i_add);
+                menu.removeItem(R.id.i_profile);
+                menu.removeItem(R.id.i_sort);
+                menu.removeItem(R.id.i_import);
+                menu.removeItem(R.id.i_export);
+                break;
+            case "manager":
+                menu.removeItem(R.id.i_profile);
+                menu.removeItem(R.id.i_sort);
+                menu.removeItem(R.id.i_import);
+                menu.removeItem(R.id.i_export);
+                break;
         }
         return true;
     }

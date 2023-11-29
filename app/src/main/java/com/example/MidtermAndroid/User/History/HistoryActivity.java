@@ -1,26 +1,25 @@
 package com.example.MidtermAndroid.User.History;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.MidtermAndroid.R;
 import com.example.MidtermAndroid.User.User;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Objects;
 
 public class HistoryActivity extends AppCompatActivity {
     FirebaseFirestore database;
@@ -35,7 +34,7 @@ public class HistoryActivity extends AppCompatActivity {
 
         database = FirebaseFirestore.getInstance();
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         lv_history = findViewById(R.id.lv_history);
         historyList = new ArrayList<>();
@@ -52,11 +51,8 @@ public class HistoryActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()){
-            case android.R.id.home:{
-                finish();
-                break;
-            }
+        if (item.getItemId() == android.R.id.home) {
+            finish();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -68,24 +64,21 @@ public class HistoryActivity extends AppCompatActivity {
         database.collection("users")
                 .document(user.getUid())
                 .collection("history")
-                .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        for(DocumentSnapshot snapshot : queryDocumentSnapshots){
-                            Date history = snapshot.getTimestamp("timestamp").toDate();
-                            sortedDates.add(history);
-                        }
-
-                        Collections.sort(sortedDates, Collections.reverseOrder());
-
-                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-                        for (Date date : sortedDates) {
-                            String historyString = sdf.format(date);
-                            historyList.add(historyString);
-                        }
-
-                        historyAdapter.notifyDataSetChanged();
+                .get().addOnSuccessListener(queryDocumentSnapshots -> {
+                    for(DocumentSnapshot snapshot : queryDocumentSnapshots){
+                        Date history = Objects.requireNonNull(snapshot.getTimestamp("timestamp")).toDate();
+                        sortedDates.add(history);
                     }
+
+                    sortedDates.sort(Collections.reverseOrder());
+
+                    @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                    for (Date date : sortedDates) {
+                        String historyString = sdf.format(date);
+                        historyList.add(historyString);
+                    }
+
+                    historyAdapter.notifyDataSetChanged();
                 });
     }
 }

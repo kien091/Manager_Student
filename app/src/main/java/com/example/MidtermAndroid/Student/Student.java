@@ -1,5 +1,7 @@
 package com.example.MidtermAndroid.Student;
 
+import androidx.annotation.NonNull;
+
 import java.io.Serializable;
 
 public class Student implements Serializable {
@@ -98,6 +100,7 @@ public class Student implements Serializable {
         this.major = major;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Student{" +

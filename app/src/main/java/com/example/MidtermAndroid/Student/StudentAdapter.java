@@ -1,7 +1,7 @@
 package com.example.MidtermAndroid.Student;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.View;
@@ -16,9 +16,9 @@ import com.example.MidtermAndroid.R;
 import java.util.ArrayList;
 
 public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.ViewHolder> {
-    private Context context;
+    private final Context context;
     private ArrayList<Student> students;
-    private String role;
+    private final String role;
 
     private Student student;
 
@@ -46,6 +46,7 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.ViewHold
         return new ViewHolder(view);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Student student = students.get(position);

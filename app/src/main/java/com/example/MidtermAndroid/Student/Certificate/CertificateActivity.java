@@ -1,6 +1,7 @@
 package com.example.MidtermAndroid.Student.Certificate;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -35,6 +36,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class CertificateActivity extends AppCompatActivity {
     FirebaseFirestore database;
@@ -51,7 +53,7 @@ public class CertificateActivity extends AppCompatActivity {
 
         rv_certificates = findViewById(R.id.rv_certificates);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         certificates = new ArrayList<>();
         adapter = new CertificateAdapter(this, certificates);
@@ -71,6 +73,7 @@ public class CertificateActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private void loadCertificates(Student student) {
         certificates.clear();
         database.collection("students")
@@ -114,6 +117,7 @@ public class CertificateActivity extends AppCompatActivity {
         return true;
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
@@ -127,7 +131,7 @@ public class CertificateActivity extends AppCompatActivity {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this)
                         .setMessage("It will be delete all current certificate of " + student.getName() + " ?")
                         .setPositiveButton("Yes", (dialog, which) -> {
-                            importFromCSV("certificate.csv", certificates);
+                            importFromCSV(certificates);
 
                             for(Certificate certificate: certificates){
                                 database.collection("students")
@@ -135,25 +139,17 @@ public class CertificateActivity extends AppCompatActivity {
                                         .collection("certificates")
                                         .document(certificate.getUid())
                                         .set(certificate)
-                                        .addOnSuccessListener(unused -> runOnUiThread(() -> {
-                                            Toast.makeText(getApplicationContext(),
-                                                    "Success to import certificates", Toast.LENGTH_SHORT).show();
-                                        }))
-                                        .addOnFailureListener(e -> runOnUiThread(() -> {
-                                            Toast.makeText(getApplicationContext(),
-                                                    "Cannot import certificates", Toast.LENGTH_SHORT).show();
-                                        }));
+                                        .addOnSuccessListener(unused -> runOnUiThread(() -> Toast.makeText(getApplicationContext(),
+                                                "Success to import certificates", Toast.LENGTH_SHORT).show()))
+                                        .addOnFailureListener(e -> runOnUiThread(() -> Toast.makeText(getApplicationContext(),
+                                                "Cannot import certificates", Toast.LENGTH_SHORT).show()));
                             }
-                        }).setNegativeButton("No", (dialog, which) -> {
-                            dialog.dismiss();
-                        });
+                        }).setNegativeButton("No", (dialog, which) -> dialog.dismiss());
                 builder.create().show();
                 break;
             case R.id.i_export:
-                exportToCSV(certificates, "certificate.csv");
-                runOnUiThread(() -> {
-                    Toast.makeText(this, "Success to export certificates of " + student.getName(), Toast.LENGTH_SHORT).show();
-                });
+                exportToCSV(certificates);
+                runOnUiThread(() -> Toast.makeText(this, "Success to export certificates of " + student.getName(), Toast.LENGTH_SHORT).show());
                 break;
                 case android.R.id.home:
                     finish();
@@ -162,7 +158,8 @@ public class CertificateActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void importFromCSV(String fileName, ArrayList<Certificate> certificates) {
+    @SuppressLint("NotifyDataSetChanged")
+    private void importFromCSV(ArrayList<Certificate> certificates) {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
@@ -170,14 +167,14 @@ public class CertificateActivity extends AppCompatActivity {
         }
 
         String filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                .getAbsolutePath() + File.separator + fileName;
+                .getAbsolutePath() + File.separator + "certificate.csv";
         File file = new File(filePath);
         if(!file.exists()) {
-            Toast.makeText(this, fileName + " isn't exist in folder", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "certificate.csv" + " isn't exist in folder", Toast.LENGTH_SHORT).show();
         }else{
             try(BufferedReader bufferedReader = new BufferedReader(new FileReader(filePath))) {
                 certificates.clear();
-                String line = bufferedReader.readLine();
+                String line = bufferedReader.readLine(); // skip header
                 while ((line = bufferedReader.readLine()) != null){
                     String[] values = line.split(",");
                     String uid = values[0];
@@ -195,7 +192,7 @@ public class CertificateActivity extends AppCompatActivity {
         }
     }
 
-    private void exportToCSV(ArrayList<Certificate> certificates, String fileName){
+    private void exportToCSV(ArrayList<Certificate> certificates){
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
@@ -203,7 +200,7 @@ public class CertificateActivity extends AppCompatActivity {
         }
 
         String filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                .getAbsolutePath() + File.separator + fileName;
+                .getAbsolutePath() + File.separator + "certificate.csv";
         try (OutputStream outputStream = new FileOutputStream(filePath);
              Writer fileWriter = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)){
             fileWriter.append("UID,Name,Issuer,Date\n");
@@ -219,6 +216,7 @@ public class CertificateActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint({"NonConstantResourceId", "NotifyDataSetChanged"})
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){

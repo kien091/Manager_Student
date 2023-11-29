@@ -1,5 +1,7 @@
 package com.example.MidtermAndroid.Student.Certificate;
 
+import androidx.annotation.NonNull;
+
 import java.io.Serializable;
 
 public class Certificate implements Serializable {
@@ -47,6 +49,7 @@ public class Certificate implements Serializable {
         this.issuer = issuer;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Certificate{" +

@@ -1,6 +1,6 @@
 package com.example.MidtermAndroid.Student.Certificate;
 
-import android.view.ContextMenu;
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.View;
@@ -16,8 +16,8 @@ import com.example.MidtermAndroid.R;
 import java.util.ArrayList;
 
 public class CertificateAdapter extends RecyclerView.Adapter<CertificateAdapter.ViewHolder>{
-    private CertificateActivity context;
-    private ArrayList<Certificate> certificates;
+    private final CertificateActivity context;
+    private final ArrayList<Certificate> certificates;
     private Certificate certificate;
 
     public CertificateAdapter(CertificateActivity context, ArrayList<Certificate> certificates) {
@@ -38,6 +38,7 @@ public class CertificateAdapter extends RecyclerView.Adapter<CertificateAdapter.
         return new ViewHolder(view);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Certificate certificate = certificates.get(position);

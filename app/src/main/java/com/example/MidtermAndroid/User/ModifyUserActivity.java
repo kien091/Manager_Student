@@ -1,5 +1,6 @@
 package com.example.MidtermAndroid.User;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -26,6 +27,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 public class ModifyUserActivity extends AppCompatActivity {
     private static final int GALLERY_REQUEST_CODE = 100;
@@ -39,12 +41,13 @@ public class ModifyUserActivity extends AppCompatActivity {
     TextInputEditText ed_name, ed_dob, ed_phone, ed_email, ed_password, ed_role, ed_status;
     TextInputLayout layout_name, layout_dob, layout_phone, layout_email,
             layout_password, layout_role, layout_status;
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_modify_user);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         auth = FirebaseAuth.getInstance();
         database = FirebaseFirestore.getInstance();
@@ -70,10 +73,10 @@ public class ModifyUserActivity extends AppCompatActivity {
         Intent intent = getIntent();
         if(intent.hasExtra("action")) {
             action = intent.getStringExtra("action");
-            if(action.equals("edit") || action.equals("view") || action.equals("profile")){
+            if(Objects.equals(action, "edit") || Objects.requireNonNull(action).equals("view") || action.equals("profile")){
                 user = (User) intent.getSerializableExtra("user");
 
-                if(user.getAvatar().isEmpty()){
+                if(Objects.requireNonNull(user).getAvatar().isEmpty()){
                     iv_avatar.setImageResource(R.drawable.baseline_person_24);
                 }else{
                     imageUrl = user.getAvatar();
@@ -208,16 +211,17 @@ public class ModifyUserActivity extends AppCompatActivity {
 
         return true;
     }
+    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         HashMap<String, Object> user = new HashMap<>();
-        user.put("name", ed_name.getText().toString());
+        user.put("name", Objects.requireNonNull(ed_name.getText()).toString());
         user.put("avatar", imageUrl);
-        user.put("dob", ed_dob.getText().toString());
-        user.put("phone", ed_phone.getText().toString());
-        user.put("email", ed_email.getText().toString());
-        user.put("role", ed_role.getText().toString());
-        user.put("status", ed_status.getText().toString());
+        user.put("dob", Objects.requireNonNull(ed_dob.getText()).toString());
+        user.put("phone", Objects.requireNonNull(ed_phone.getText()).toString());
+        user.put("email", Objects.requireNonNull(ed_email.getText()).toString());
+        user.put("role", Objects.requireNonNull(ed_role.getText()).toString());
+        user.put("status", Objects.requireNonNull(ed_status.getText()).toString());
 
         Intent intent = new Intent(getApplicationContext(), UserActivity.class);
         switch (item.getItemId()){
@@ -242,31 +246,31 @@ public class ModifyUserActivity extends AppCompatActivity {
                     break;
                 }
 
-                if(action.equals("add")){
-                    registerUser(ed_email.getText().toString(),
-                            ed_password.getText().toString(), user);
-                } else if (action.equals("edit")) {
-                    database.collection("users")
-                            .document(this.user.getUid())
-                            .set(user)
-                            .addOnSuccessListener(unused -> {
-                                runOnUiThread(() -> Toast.makeText(
+                switch (action) {
+                    case "add":
+                        registerUser(ed_email.getText().toString(),
+                                Objects.requireNonNull(ed_password.getText()).toString(), user);
+                        break;
+                    case "edit":
+                        database.collection("users")
+                                .document(this.user.getUid())
+                                .set(user)
+                                .addOnSuccessListener(unused -> runOnUiThread(() -> Toast.makeText(
                                         getApplicationContext()
                                         , "Success to update user!"
-                                        , Toast.LENGTH_SHORT).show());
-                            });
-                } else if (action.equals("profile")) {
-                    FirebaseUser currentUser = auth.getCurrentUser();
-                    database.collection("users")
-                            .document(currentUser.getUid())
-                            .set(user)
-                            .addOnSuccessListener(unused -> {
-                                runOnUiThread(() -> Toast.makeText(
+                                        , Toast.LENGTH_SHORT).show()));
+                        break;
+                    case "profile":
+                        FirebaseUser currentUser = auth.getCurrentUser();
+                        database.collection("users")
+                                .document(Objects.requireNonNull(currentUser).getUid())
+                                .set(user)
+                                .addOnSuccessListener(unused -> runOnUiThread(() -> Toast.makeText(
                                         getApplicationContext()
                                         , "Success to update user!"
-                                        , Toast.LENGTH_SHORT).show());
-                            });
+                                        , Toast.LENGTH_SHORT).show()));
 
+                        break;
                 }
                 startActivity(intent);
                 finish();
@@ -281,7 +285,7 @@ public class ModifyUserActivity extends AppCompatActivity {
         auth.createUserWithEmailAndPassword(email, password)
                 .addOnSuccessListener(authResult -> {
                         FirebaseUser user = auth.getCurrentUser();
-                        String userId = user.getUid();
+                        String userId = Objects.requireNonNull(user).getUid();
 
                         data.put("uid", userId);
 

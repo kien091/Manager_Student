@@ -1,8 +1,6 @@
 package com.example.MidtermAndroid.Student.Certificate;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -10,13 +8,16 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.MidtermAndroid.R;
-import com.example.MidtermAndroid.Student.Student;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 public class ModifyCertificateActivity extends AppCompatActivity {
     FirebaseFirestore database;
@@ -32,7 +33,7 @@ public class ModifyCertificateActivity extends AppCompatActivity {
 
         database = FirebaseFirestore.getInstance();
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         ed_name = findViewById(R.id.ed_name);
         ed_date = findViewById(R.id.ed_date);
@@ -49,7 +50,7 @@ public class ModifyCertificateActivity extends AppCompatActivity {
 
         if(action.equals("edit")){
             certificate = (Certificate) intent.getSerializableExtra("certificate");
-            ed_name.setText(certificate.getName());
+            ed_name.setText(Objects.requireNonNull(certificate).getName());
             ed_date.setText(certificate.getDate());
             ed_issuer.setText(certificate.getIssuer());
         }
@@ -61,12 +62,13 @@ public class ModifyCertificateActivity extends AppCompatActivity {
 
         return true;
     }
+    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         HashMap<String, Object> certificate = new HashMap<>();
-        certificate.put("name", ed_name.getText().toString());
-        certificate.put("date", ed_date.getText().toString());
-        certificate.put("issuer", ed_issuer.getText().toString());
+        certificate.put("name", Objects.requireNonNull(ed_name.getText()).toString());
+        certificate.put("date", Objects.requireNonNull(ed_date.getText()).toString());
+        certificate.put("issuer", Objects.requireNonNull(ed_issuer.getText()).toString());
 
         Intent intent = new Intent(this, CertificateActivity.class);
         switch (item.getItemId()) {

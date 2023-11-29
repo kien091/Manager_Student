@@ -1,5 +1,6 @@
 package com.example.MidtermAndroid.User;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
 import android.view.LayoutInflater;
@@ -19,19 +20,15 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
+import java.util.Objects;
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder>{
-    private Context context;
-    private ArrayList<User> users;
+    private final Context context;
+    private final ArrayList<User> users;
     private User user;
 
     public UserAdapter(Context context, ArrayList<User> users) {
         this.context = context;
-        this.users = users;
-    }
-
-    public void setUsers(ArrayList<User> users) {
         this.users = users;
     }
 
@@ -48,6 +45,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder>{
         return new ViewHolder(view);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         User user = users.get(position);
@@ -65,9 +63,9 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder>{
         tv_user_name.setText(user.getName());
 
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
             Calendar dob = Calendar.getInstance();
-            dob.setTime(sdf.parse(user.getDob()));
+            dob.setTime(Objects.requireNonNull(sdf.parse(user.getDob())));
             Calendar today = Calendar.getInstance();
 
             int age = today.get(Calendar.YEAR) - dob.get(Calendar.YEAR);

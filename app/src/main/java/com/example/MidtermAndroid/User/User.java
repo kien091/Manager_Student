@@ -1,5 +1,7 @@
 package com.example.MidtermAndroid.User;
 
+import androidx.annotation.NonNull;
+
 import java.io.Serializable;
 
 public class User implements Serializable {
@@ -87,6 +89,7 @@ public class User implements Serializable {
         this.status = status;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "User{" +

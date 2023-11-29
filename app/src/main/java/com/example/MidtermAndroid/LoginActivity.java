@@ -1,29 +1,23 @@
 package com.example.MidtermAndroid;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.method.LinkMovementMethod;
-import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.MidtermAndroid.Student.StudentActivity;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
-import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 public class LoginActivity extends AppCompatActivity {
     FirebaseAuth auth;
@@ -58,12 +52,13 @@ public class LoginActivity extends AppCompatActivity {
         layout_password = findViewById(R.id.layout_password);
 
         btn_login.setOnClickListener(v -> {
-            String email = ed_email.getText().toString();
-            String password = ed_password.getText().toString();
+            String email = Objects.requireNonNull(ed_email.getText()).toString();
+            String password = Objects.requireNonNull(ed_password.getText()).toString();
             loginUser(email, password);
         });
     }
 
+    @SuppressLint("SetTextI18n")
     private void loginUser(String email, String password) {
         HashMap<String, Object> historyLogin = new HashMap<>();
         historyLogin.put("timestamp", FieldValue.serverTimestamp());
@@ -72,9 +67,9 @@ public class LoginActivity extends AppCompatActivity {
                 .addOnCompleteListener(this, task -> {
                     if(task.isSuccessful()){
                         FirebaseUser user = auth.getCurrentUser();
-                        String userId = user.getUid();
+                        String userId = Objects.requireNonNull(user).getUid();
 
-                        this.userUId = userId;
+                        userUId = userId;
 
                         database.collection("users").document(userId)
                                 .collection("history")
@@ -83,9 +78,9 @@ public class LoginActivity extends AppCompatActivity {
                         database.collection("users").document(userId)
                                         .get().addOnSuccessListener(documentSnapshot -> {
                                             if(documentSnapshot.exists()){
-                                                this.role = documentSnapshot.getString("role");
+                                                role = documentSnapshot.getString("role");
                                                 String status = documentSnapshot.getString("status");
-                                                if(status.toLowerCase().equals("normal"))
+                                                if(Objects.requireNonNull(status).equalsIgnoreCase("normal"))
                                                     startActivity(new Intent(LoginActivity.this, StudentActivity.class));
                                                 else
                                                     tv_error.setText("Your account is locked!");
