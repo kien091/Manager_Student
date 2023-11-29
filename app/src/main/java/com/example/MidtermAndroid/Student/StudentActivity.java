@@ -8,13 +8,10 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.EditText;
-import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -27,19 +24,18 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.MidtermAndroid.LoginActivity;
-import com.example.MidtermAndroid.ProfileActivity;
 import com.example.MidtermAndroid.R;
 import com.example.MidtermAndroid.Student.Certificate.CertificateActivity;
+import com.example.MidtermAndroid.User.ModifyUserActivity;
+import com.example.MidtermAndroid.User.User;
 import com.example.MidtermAndroid.User.UserActivity;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -112,9 +108,7 @@ public class StudentActivity extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.student_option_menu, menu);
 
-        if(LoginActivity.getRole().equals("employee")){
-            menu.removeItem(R.id.i_save);
-        }
+        menu.removeItem(R.id.i_student);
 
         return true;
     }
@@ -132,7 +126,26 @@ public class StudentActivity extends AppCompatActivity {
                 startActivity(intent);
                 break;
             case R.id.i_profile:
-                startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
+                Intent intent1 = new Intent(getApplicationContext(), ModifyUserActivity.class);
+                intent1.putExtra("action", "view");
+                database.collection("users")
+                        .document(LoginActivity.getUserUId())
+                        .get()
+                        .addOnSuccessListener(documentSnapshot -> {
+                            if(documentSnapshot.exists()){
+                                String name = documentSnapshot.getString("name");
+                                String avatar = documentSnapshot.getString("avatar");
+                                String dob = documentSnapshot.getString("dob");
+                                String phone = documentSnapshot.getString("phone");
+                                String email = documentSnapshot.getString("email");
+                                String role = documentSnapshot.getString("role");
+                                String status = documentSnapshot.getString("status");
+
+                                User user = new User(LoginActivity.getUserUId(), name, avatar, dob, phone, email, role, status);
+                                intent1.putExtra("user", user);
+                            }
+                        });
+                startActivity(intent1);
                 break;
             case R.id.i_sort_name:
                 students = (ArrayList<Student>) students.stream()
@@ -167,10 +180,22 @@ public class StudentActivity extends AppCompatActivity {
                         .setMessage("It will be delete all current data?")
                         .setPositiveButton("Yes", (dialog, which) -> {
                             importFromCSV("students.csv", students);
-                            runOnUiThread(() -> {
-                                Toast.makeText(this, "Success to import students", Toast.LENGTH_SHORT).show();
-                            });
-                        }).setPositiveButton("No", (dialog, which) -> {
+
+                            for(Student student: students){
+                                database.collection("students")
+                                        .document(student.getUid())
+                                        .set(student)
+                                        .addOnSuccessListener(unused -> runOnUiThread(() -> {
+                                            Toast.makeText(getApplicationContext(),
+                                                    "Success to import students", Toast.LENGTH_SHORT).show();
+                                        }))
+                                        .addOnFailureListener(e -> runOnUiThread(() -> {
+                                            Toast.makeText(getApplicationContext(),
+                                                    "Cannot import students", Toast.LENGTH_SHORT).show();
+                                        }));
+                            }
+
+                        }).setNegativeButton("No", (dialog, which) -> {
                             dialog.dismiss();
                         });
                 builder.create().show();
@@ -205,7 +230,9 @@ public class StudentActivity extends AppCompatActivity {
                             runOnUiThread(() -> Toast.makeText(getApplicationContext(),
                                     "Success to delete student!", Toast.LENGTH_SHORT).show());})
                         .addOnFailureListener(e ->
-                                Toast.makeText(getApplicationContext(), "Cannot delete student!", Toast.LENGTH_SHORT).show());
+                                Toast.makeText(getApplicationContext(),
+                                        "Cannot delete student!",
+                                        Toast.LENGTH_SHORT).show());
                 break;
             case R.id.i_edit:
                 intent.putExtra("action", "edit");

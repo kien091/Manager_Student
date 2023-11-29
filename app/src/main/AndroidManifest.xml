@@ -16,6 +16,9 @@
         android:theme="@style/Theme.MidtermAndroid"
         tools:targetApi="31">
         <activity
+            android:name=".User.ModifyUserActivity"
+            android:exported="false" />
+        <activity
             android:name=".Student.Certificate.ModifyCertificateActivity"
             android:exported="false" />
         <activity

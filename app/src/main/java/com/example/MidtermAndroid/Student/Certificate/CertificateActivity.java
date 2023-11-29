@@ -1,5 +1,15 @@
 package com.example.MidtermAndroid.Student.Certificate;
 
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.os.Environment;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,27 +19,13 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.Manifest;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.os.Bundle;
-import android.os.Environment;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.widget.Toast;
-
 import com.example.MidtermAndroid.R;
 import com.example.MidtermAndroid.Student.Student;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -87,7 +83,7 @@ public class CertificateActivity extends AppCompatActivity {
                         String date = document.getString("date");
                         String issuer = document.getString("issuer");
 
-                        Certificate certificate = new Certificate(uid, name, issuer, date);
+                        Certificate certificate = new Certificate(uid, name, date, issuer);
                         certificates.add(certificate);
                         runOnUiThread(() -> adapter.notifyDataSetChanged());
                     }
@@ -102,6 +98,7 @@ public class CertificateActivity extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.student_option_menu, menu);
 
+        menu.removeItem(R.id.i_student);
         menu.removeItem(R.id.i_user);
         menu.removeItem(R.id.i_profile);
         menu.removeItem(R.id.i_sort);
@@ -123,10 +120,23 @@ public class CertificateActivity extends AppCompatActivity {
                         .setMessage("It will be delete all current certificate of " + student.getName() + " ?")
                         .setPositiveButton("Yes", (dialog, which) -> {
                             importFromCSV("certificate.csv", certificates);
-                            runOnUiThread(() -> {
-                                Toast.makeText(this, "Success to import certificates", Toast.LENGTH_SHORT).show();
-                            });
-                        }).setPositiveButton("No", (dialog, which) -> {
+
+                            for(Certificate certificate: certificates){
+                                database.collection("students")
+                                        .document(student.getUid())
+                                        .collection("certificates")
+                                        .document(certificate.getUid())
+                                        .set(certificate)
+                                        .addOnSuccessListener(unused -> runOnUiThread(() -> {
+                                            Toast.makeText(getApplicationContext(),
+                                                    "Success to import certificates", Toast.LENGTH_SHORT).show();
+                                        }))
+                                        .addOnFailureListener(e -> runOnUiThread(() -> {
+                                            Toast.makeText(getApplicationContext(),
+                                                    "Cannot import certificates", Toast.LENGTH_SHORT).show();
+                                        }));
+                            }
+                        }).setNegativeButton("No", (dialog, which) -> {
                             dialog.dismiss();
                         });
                 builder.create().show();
@@ -167,7 +177,7 @@ public class CertificateActivity extends AppCompatActivity {
                     String issuer = values[2];
                     String date = values[3];
 
-                    Certificate certificate = new Certificate(uid, name, issuer, date);
+                    Certificate certificate = new Certificate(uid, name, date, issuer);
                     certificates.add(certificate);
                 }
                 runOnUiThread(() -> adapter.notifyDataSetChanged());
@@ -231,5 +241,4 @@ public class CertificateActivity extends AppCompatActivity {
         }
         return super.onContextItemSelected(item);
     }
-
 }

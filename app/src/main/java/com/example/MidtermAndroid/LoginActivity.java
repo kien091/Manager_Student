@@ -33,9 +33,14 @@ public class LoginActivity extends AppCompatActivity {
     TextView tv_error;
     TextInputLayout layout_password;
     private static String role;
+    private static String userUId;
 
     public static String getRole() {
         return role;
+    }
+
+    public static String getUserUId() {
+        return userUId;
     }
 
     @Override
@@ -69,6 +74,8 @@ public class LoginActivity extends AppCompatActivity {
                         FirebaseUser user = auth.getCurrentUser();
                         String userId = user.getUid();
 
+                        this.userUId = userId;
+
                         database.collection("users").document(userId)
                                 .collection("history")
                                 .add(historyLogin);
@@ -78,7 +85,7 @@ public class LoginActivity extends AppCompatActivity {
                                             if(documentSnapshot.exists()){
                                                 this.role = documentSnapshot.getString("role");
                                                 String status = documentSnapshot.getString("status");
-                                                if(status.equals("normal"))
+                                                if(status.toLowerCase().equals("normal"))
                                                     startActivity(new Intent(LoginActivity.this, StudentActivity.class));
                                                 else
                                                     tv_error.setText("Your account is locked!");

@@ -2,6 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/i_student"
+        android:title="Student"
+        android:icon="@drawable/round_school_24"
+        app:showAsAction="always"/>
+    <item
         android:id="@+id/i_user"
         android:title="User"
         android:icon="@drawable/round_supervised_user_circle_24"

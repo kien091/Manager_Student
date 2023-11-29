@@ -68,6 +68,7 @@ public class ModifyCertificateActivity extends AppCompatActivity {
         certificate.put("date", ed_date.getText().toString());
         certificate.put("issuer", ed_issuer.getText().toString());
 
+        Intent intent = new Intent(this, CertificateActivity.class);
         switch (item.getItemId()) {
             case R.id.i_save:
                 if(ed_name.getText().toString().isEmpty()){
@@ -100,6 +101,7 @@ public class ModifyCertificateActivity extends AppCompatActivity {
                             "Update certificate successfully!",
                             Toast.LENGTH_SHORT).show());
                 }
+                startActivity(intent);
                 finish();
                 break;
             case android.R.id.home:
