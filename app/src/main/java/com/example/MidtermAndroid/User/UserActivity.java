@@ -16,6 +16,8 @@ import android.widget.Toast;
 import com.example.MidtermAndroid.LoginActivity;
 import com.example.MidtermAndroid.R;
 import com.example.MidtermAndroid.Student.StudentActivity;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -113,6 +115,9 @@ public class UserActivity extends AppCompatActivity {
                 startActivity(intent);
                 break;
             case R.id.i_delete:
+                FirebaseAuth auth = FirebaseAuth.getInstance();
+                FirebaseUser user = auth.getCurrentUser();
+
                 database.collection("users")
                         .document(adapter.getUser().getUid())
                         .delete()

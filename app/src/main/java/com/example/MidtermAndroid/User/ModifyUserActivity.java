@@ -22,6 +22,8 @@ import android.widget.Toast;
 
 import com.example.MidtermAndroid.R;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -29,6 +31,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -82,6 +85,7 @@ public class ModifyUserActivity extends AppCompatActivity {
                 if(user.getAvatar().isEmpty()){
                     iv_avatar.setImageResource(R.drawable.baseline_person_24);
                 }else{
+                    imageUrl = user.getAvatar();
                     iv_avatar.setImageURI(Uri.parse(user.getAvatar()));
                 }
                 ed_name.setText(user.getName());
@@ -242,12 +246,18 @@ public class ModifyUserActivity extends AppCompatActivity {
                 if(action.equals("add")){
                     registerUser(ed_email.getText().toString(),
                             ed_password.getText().toString(), user);
-                    runOnUiThread(() -> Toast.makeText(
-                            getApplicationContext()
-                            , "Success to add a new user!"
-                            , Toast.LENGTH_SHORT).show());
+                    database.collection("users")
+                            .add(user)
+                            .addOnSuccessListener(documentReference ->
+                                    runOnUiThread(() -> Toast.makeText(
+                                    getApplicationContext()
+                                    , "Success to add a new user!"
+                                    , Toast.LENGTH_SHORT).show()))
+                            .addOnFailureListener(e -> runOnUiThread(() -> Toast.makeText(
+                                    getApplicationContext()
+                                    , "Fail to add a new user!"
+                                    , Toast.LENGTH_SHORT).show()));
                 } else if (action.equals("edit")) {
-                    user.remove("avatar");
                     database.collection("users")
                             .document(this.user.getUid())
                             .set(user)
@@ -273,7 +283,9 @@ public class ModifyUserActivity extends AppCompatActivity {
                         FirebaseUser user = auth.getCurrentUser();
                         String userId = user.getUid();
 
-                        database.collection("users").document(userId)
+                        Log.e("TAG", "registerUser: " + userId);
+                        database.collection("users")
+                                .document(userId)
                                 .set(data)
                                 .addOnSuccessListener(unused -> {
                                     database.collection("users")
