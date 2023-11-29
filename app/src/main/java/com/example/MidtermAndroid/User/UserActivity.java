@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -23,6 +24,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class UserActivity extends AppCompatActivity {
     FirebaseFirestore database;
@@ -61,6 +63,10 @@ public class UserActivity extends AppCompatActivity {
         menu.removeItem(R.id.i_import);
         menu.removeItem(R.id.i_export);
 
+        if(LoginActivity.getRole().equals("manager") || LoginActivity.getRole().equals("employee")){
+            menu.removeItem(R.id.i_add);
+        }
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -77,7 +83,6 @@ public class UserActivity extends AppCompatActivity {
                 startActivity(intent);
                 break;
             case R.id.i_profile:
-                intent.putExtra("action", "view");
                 database.collection("users")
                         .document(LoginActivity.getUserUId())
                         .get()
@@ -92,10 +97,17 @@ public class UserActivity extends AppCompatActivity {
                                 String status = documentSnapshot.getString("status");
 
                                 User user = new User(LoginActivity.getUserUId(), name, avatar, dob, phone, email, role, status);
-                                intent.putExtra("user", user);
+                                Intent intent1 = new Intent(this, ModifyUserActivity.class);
+                                intent1.putExtra("action", "profile");
+                                intent1.putExtra("user", user);
+                                startActivity(intent1);
                             }
                         });
-                startActivity(intent);
+                break;
+            case R.id.i_logout:
+                FirebaseAuth.getInstance().signOut();
+                startActivity(new Intent(this, LoginActivity.class));
+                finish();
                 break;
         }
         return super.onOptionsItemSelected(item);

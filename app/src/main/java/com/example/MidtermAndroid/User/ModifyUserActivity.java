@@ -1,37 +1,28 @@
 package com.example.MidtermAndroid.User;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.MidtermAndroid.R;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -105,6 +96,14 @@ public class ModifyUserActivity extends AppCompatActivity {
                     ed_role.setEnabled(false);
                     ed_status.setEnabled(false);
                     btn_camera.setVisibility(View.GONE);
+                } else if(action.equals("profile")){
+                    ed_name.setEnabled(false);
+                    ed_dob.setEnabled(false);
+                    ed_phone.setEnabled(false);
+                    ed_email.setEnabled(false);
+                    ed_password.setEnabled(false);
+                    ed_role.setEnabled(false);
+                    ed_status.setEnabled(false);
                 }
             }
         }
@@ -246,17 +245,6 @@ public class ModifyUserActivity extends AppCompatActivity {
                 if(action.equals("add")){
                     registerUser(ed_email.getText().toString(),
                             ed_password.getText().toString(), user);
-                    database.collection("users")
-                            .add(user)
-                            .addOnSuccessListener(documentReference ->
-                                    runOnUiThread(() -> Toast.makeText(
-                                    getApplicationContext()
-                                    , "Success to add a new user!"
-                                    , Toast.LENGTH_SHORT).show()))
-                            .addOnFailureListener(e -> runOnUiThread(() -> Toast.makeText(
-                                    getApplicationContext()
-                                    , "Fail to add a new user!"
-                                    , Toast.LENGTH_SHORT).show()));
                 } else if (action.equals("edit")) {
                     database.collection("users")
                             .document(this.user.getUid())
@@ -269,31 +257,34 @@ public class ModifyUserActivity extends AppCompatActivity {
                             });
                 }
                 startActivity(intent);
+                finish();
                 break;
-                case android.R.id.home:
-                    finish();
-                    break;
+            case android.R.id.home:
+                finish();
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
     private void registerUser(String email, String password, HashMap<String, Object> data) {
         auth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, task -> {
-                    if (task.isSuccessful()) {
+                .addOnSuccessListener(authResult -> {
                         FirebaseUser user = auth.getCurrentUser();
                         String userId = user.getUid();
 
                         data.put("uid", userId);
+
                         database.collection("users")
                                 .document(userId)
                                 .set(data)
-                                .addOnSuccessListener(unused -> {
-                                    database.collection("users")
-                                            .document(userId)
-                                            .collection("history")
-                                            .add(new HashMap<>());
-                                });
-                    }
+                                .addOnSuccessListener(documentReference ->
+                                        runOnUiThread(() -> Toast.makeText(
+                                                getApplicationContext()
+                                                , "Success to add a new user!"
+                                                , Toast.LENGTH_SHORT).show()))
+                                .addOnFailureListener(e -> runOnUiThread(() -> Toast.makeText(
+                                        getApplicationContext()
+                                        , "Fail to add a new user!"
+                                        , Toast.LENGTH_SHORT).show()));
                 });
     }
 }

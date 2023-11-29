@@ -43,4 +43,7 @@
     <item
         android:id="@+id/i_export"
         android:title="Export"/>
+    <item
+        android:id="@+id/i_logout"
+        android:title="Logout"/>
 </menu>

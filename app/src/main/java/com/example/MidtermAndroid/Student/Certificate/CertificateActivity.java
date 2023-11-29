@@ -102,6 +102,7 @@ public class CertificateActivity extends AppCompatActivity {
         menu.removeItem(R.id.i_user);
         menu.removeItem(R.id.i_profile);
         menu.removeItem(R.id.i_sort);
+        menu.removeItem(R.id.i_logout);
 
         return true;
     }

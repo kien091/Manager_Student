@@ -29,6 +29,7 @@ import com.example.MidtermAndroid.Student.Certificate.CertificateActivity;
 import com.example.MidtermAndroid.User.ModifyUserActivity;
 import com.example.MidtermAndroid.User.User;
 import com.example.MidtermAndroid.User.UserActivity;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -126,8 +127,6 @@ public class StudentActivity extends AppCompatActivity {
                 startActivity(intent);
                 break;
             case R.id.i_profile:
-                Intent intent1 = new Intent(getApplicationContext(), ModifyUserActivity.class);
-                intent1.putExtra("action", "view");
                 database.collection("users")
                         .document(LoginActivity.getUserUId())
                         .get()
@@ -142,10 +141,12 @@ public class StudentActivity extends AppCompatActivity {
                                 String status = documentSnapshot.getString("status");
 
                                 User user = new User(LoginActivity.getUserUId(), name, avatar, dob, phone, email, role, status);
+                                Intent intent1 = new Intent(getApplicationContext(), ModifyUserActivity.class);
+                                intent1.putExtra("action", "profile");
                                 intent1.putExtra("user", user);
+                                startActivity(intent1);
                             }
                         });
-                startActivity(intent1);
                 break;
             case R.id.i_sort_name:
                 students = (ArrayList<Student>) students.stream()
@@ -205,6 +206,11 @@ public class StudentActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     Toast.makeText(this, "Success to export students", Toast.LENGTH_SHORT).show();
                 });
+                break;
+            case R.id.i_logout:
+                FirebaseAuth.getInstance().signOut();
+                startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+                finish();
                 break;
         }
         return true;

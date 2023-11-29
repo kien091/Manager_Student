@@ -87,12 +87,23 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder>{
         TextView tv_user_status = holder.tv_user_status;
         tv_user_status.setText("Status: " + user.getStatus());
 
-        if(LoginActivity.getRole().equals("admin") || LoginActivity.getRole().equals("manager")){
+        if(LoginActivity.getRole().equals("admin")){
             holder.itemView.setOnCreateContextMenuListener((menu, v, menuInfo) -> {
                 MenuInflater inflater = new MenuInflater(context);
                 inflater.inflate(R.menu.student_context_menu, menu);
 
                 menu.removeItem(R.id.i_certificate);
+                this.user = user;
+            });
+        } else if (LoginActivity.getRole().equals("employee")
+                || LoginActivity.getRole().equals("manager")) {
+            holder.itemView.setOnCreateContextMenuListener((menu, v, menuInfo) -> {
+                MenuInflater inflater = new MenuInflater(context);
+                inflater.inflate(R.menu.student_context_menu, menu);
+
+                menu.removeItem(R.id.i_certificate);
+                menu.removeItem(R.id.i_edit);
+                menu.removeItem(R.id.i_delete);
                 this.user = user;
             });
         }
