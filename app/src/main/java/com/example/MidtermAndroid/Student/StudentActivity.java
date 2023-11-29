@@ -111,6 +111,24 @@ public class StudentActivity extends AppCompatActivity {
 
         menu.removeItem(R.id.i_student);
 
+        if(LoginActivity.getRole().equals("employee")){
+            menu.removeItem(R.id.i_add);
+            menu.removeItem(R.id.i_profile);
+            menu.removeItem(R.id.i_sort);
+            menu.removeItem(R.id.i_import);
+            menu.removeItem(R.id.i_export);
+        }
+        else if(LoginActivity.getRole().equals("manager")){
+            menu.removeItem(R.id.i_profile);
+            menu.removeItem(R.id.i_sort);
+            menu.removeItem(R.id.i_import);
+            menu.removeItem(R.id.i_export);
+        }
+        else if(LoginActivity.getRole().equals("student")){
+            menu.removeItem(R.id.i_add);
+            menu.removeItem(R.id.i_import);
+            menu.removeItem(R.id.i_export);
+        }
         return true;
     }
 

@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.MidtermAndroid.LoginActivity;
 import com.example.MidtermAndroid.R;
 import com.example.MidtermAndroid.Student.Student;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -103,6 +104,12 @@ public class CertificateActivity extends AppCompatActivity {
         menu.removeItem(R.id.i_profile);
         menu.removeItem(R.id.i_sort);
         menu.removeItem(R.id.i_logout);
+
+        if(LoginActivity.getRole().equals("employee")){
+            menu.removeItem(R.id.i_add);
+            menu.removeItem(R.id.i_import);
+            menu.removeItem(R.id.i_export);
+        }
 
         return true;
     }

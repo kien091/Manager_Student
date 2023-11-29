@@ -70,7 +70,7 @@ public class ModifyUserActivity extends AppCompatActivity {
         Intent intent = getIntent();
         if(intent.hasExtra("action")) {
             action = intent.getStringExtra("action");
-            if(action.equals("edit") || action.equals("view")){
+            if(action.equals("edit") || action.equals("view") || action.equals("profile")){
                 user = (User) intent.getSerializableExtra("user");
 
                 if(user.getAvatar().isEmpty()){
@@ -255,6 +255,18 @@ public class ModifyUserActivity extends AppCompatActivity {
                                         , "Success to update user!"
                                         , Toast.LENGTH_SHORT).show());
                             });
+                } else if (action.equals("profile")) {
+                    FirebaseUser currentUser = auth.getCurrentUser();
+                    database.collection("users")
+                            .document(currentUser.getUid())
+                            .set(user)
+                            .addOnSuccessListener(unused -> {
+                                runOnUiThread(() -> Toast.makeText(
+                                        getApplicationContext()
+                                        , "Success to update user!"
+                                        , Toast.LENGTH_SHORT).show());
+                            });
+
                 }
                 startActivity(intent);
                 finish();
