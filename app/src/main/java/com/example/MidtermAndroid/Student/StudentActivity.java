@@ -289,7 +289,7 @@ public class StudentActivity extends AppCompatActivity {
         String filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
                 .getAbsolutePath() + File.separator + fileName;
 
-        try (OutputStream outputStream = new FileOutputStream(filePath);
+        try (OutputStream outputStream = new FileOutputStream(filePath, false);
              Writer fileWriter = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
             fileWriter.append("UID,Name,DOB,Gender,Phone,StudentID,Grade,Faculty,Major\n");
 

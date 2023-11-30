@@ -4,6 +4,8 @@
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
         android:allowBackup="true"
@@ -28,9 +30,6 @@
             android:name=".Student.Certificate.CertificateActivity"
             android:exported="false" />
         <activity
-            android:name=".ProfileActivity"
-            android:exported="false" />
-        <activity
             android:name=".Student.ModifyStudentActivity"
             android:exported="false" />
         <activity
@@ -39,9 +38,6 @@
         <activity
             android:name=".Student.StudentActivity"
             android:exported="false" />
-        <activity
-            android:name=".User.RegisterActivity"
-            android:exported="true" />
         <activity
             android:name=".LoginActivity"
             android:exported="true">
