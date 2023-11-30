@@ -60,6 +60,7 @@ public class CertificateAdapter extends RecyclerView.Adapter<CertificateAdapter.
 
                 menu.removeItem(R.id.i_detail);
                 menu.removeItem(R.id.i_certificate);
+                menu.removeItem(R.id.i_history);
                 this.certificate = certificate;
             });
         }
