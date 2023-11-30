@@ -111,25 +111,15 @@ public class StudentActivity extends AppCompatActivity {
 
         menu.removeItem(R.id.i_student);
 
-        switch (LoginActivity.getRole()) {
-            case "employee":
-                menu.removeItem(R.id.i_add);
-                menu.removeItem(R.id.i_profile);
-                menu.removeItem(R.id.i_sort);
-                menu.removeItem(R.id.i_import);
-                menu.removeItem(R.id.i_export);
-                break;
-            case "manager":
-                menu.removeItem(R.id.i_profile);
-                menu.removeItem(R.id.i_sort);
-                menu.removeItem(R.id.i_import);
-                menu.removeItem(R.id.i_export);
-                break;
+        if (LoginActivity.getRole().equals("employee")) {
+            menu.removeItem(R.id.i_add);
+            menu.removeItem(R.id.i_import);
+            menu.removeItem(R.id.i_export);
         }
         return true;
     }
 
-    @SuppressLint("NonConstantResourceId")
+    @SuppressLint({"NonConstantResourceId", "NotifyDataSetChanged"})
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
@@ -201,26 +191,18 @@ public class StudentActivity extends AppCompatActivity {
                                 database.collection("students")
                                         .document(student.getUid())
                                         .set(student)
-                                        .addOnSuccessListener(unused -> runOnUiThread(() -> {
-                                            Toast.makeText(getApplicationContext(),
-                                                    "Success to import students", Toast.LENGTH_SHORT).show();
-                                        }))
-                                        .addOnFailureListener(e -> runOnUiThread(() -> {
-                                            Toast.makeText(getApplicationContext(),
-                                                    "Cannot import students", Toast.LENGTH_SHORT).show();
-                                        }));
+                                        .addOnSuccessListener(unused -> runOnUiThread(() -> Toast.makeText(getApplicationContext(),
+                                                "Success to import students", Toast.LENGTH_SHORT).show()))
+                                        .addOnFailureListener(e -> runOnUiThread(() -> Toast.makeText(getApplicationContext(),
+                                                "Cannot import students", Toast.LENGTH_SHORT).show()));
                             }
 
-                        }).setNegativeButton("No", (dialog, which) -> {
-                            dialog.dismiss();
-                        });
+                        }).setNegativeButton("No", (dialog, which) -> dialog.dismiss());
                 builder.create().show();
                 break;
             case R.id.i_export:
                 exportToCSV(students, "students.csv");
-                runOnUiThread(() -> {
-                    Toast.makeText(this, "Success to export students", Toast.LENGTH_SHORT).show();
-                });
+                runOnUiThread(() -> Toast.makeText(this, "Success to export students", Toast.LENGTH_SHORT).show());
                 break;
             case R.id.i_logout:
                 FirebaseAuth.getInstance().signOut();
@@ -231,7 +213,7 @@ public class StudentActivity extends AppCompatActivity {
         return true;
     }
 
-    @SuppressLint("NonConstantResourceId")
+    @SuppressLint({"NonConstantResourceId", "NotifyDataSetChanged"})
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
         Intent intent = new Intent(getApplicationContext(), ModifyStudentActivity.class);
@@ -327,6 +309,7 @@ public class StudentActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+    @SuppressLint("NotifyDataSetChanged")
     public void importFromCSV(String fileName, ArrayList<Student> students){
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {

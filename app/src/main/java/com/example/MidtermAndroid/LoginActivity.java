@@ -68,13 +68,10 @@ public class LoginActivity extends AppCompatActivity {
                     if(task.isSuccessful()){
                         FirebaseUser user = auth.getCurrentUser();
                         String userId = Objects.requireNonNull(user).getUid();
-
                         userUId = userId;
-
                         database.collection("users").document(userId)
                                 .collection("history")
                                 .add(historyLogin);
-
                         database.collection("users").document(userId)
                                         .get().addOnSuccessListener(documentSnapshot -> {
                                             if(documentSnapshot.exists()){
